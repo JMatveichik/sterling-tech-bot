@@ -49,21 +49,22 @@
 				<TextBox Text="{Binding TargetAccountId}"/>
 
 				<Button
-					Command="{Binding CopyTradesCommand}"
+					Command="{Binding CopyOrdersCommand}"
 					Margin="5"
 					Content="СКОПИРОВАТЬ">
 				</Button>
 
-				<ListBox ItemsSource="{Binding Trades}"
+				<ListBox ItemsSource="{Binding Orders}"
 					BorderThickness="1"
 					MinHeight="300">
 
 					<ListBox.ItemTemplate>
 						<DataTemplate>
 							<StackPanel>
-							<TextBlock Text="{Binding AccountId}"/>
-							<TextBlock Text="{Binding Id}"/>
-							<TextBlock Text="{Binding Amount}"/>
+								<TextBlock Text="{Binding Id}"/>
+								<TextBlock Text="{Binding Symbol}"/>
+								<TextBlock Text="{Binding Quantity}"/>
+								<TextBlock Text="{Binding Timestamp}"/>
 							</StackPanel>
 						</DataTemplate>
 					</ListBox.ItemTemplate>

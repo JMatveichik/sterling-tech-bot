@@ -49,7 +49,7 @@
 				<TextBox Text="{Binding TargetAccountId}"/>
 
 				<Button
-					Command="{Binding CopyTradesCommand}"
+					Command="{Binding CopyOrdersCommand}"
 					Margin="5"
 					Content="СКОПИРОВАТЬ">
 				</Button>

@@ -1,4 +1,6 @@
-﻿using System;
+﻿using SterlingLib;
+using SterlingTechBot.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,7 +10,8 @@ namespace SterlingTechBot.Services
 {
 	public interface ISterlingTradeApi
 	{
-		Task<string> GetTrades(string accountId);
-		Task<bool> CopyTrades(string targetAccountId, string xmlToSend);
+		Task<IEnumerable<structSTIOrderUpdate>> GetOrders(string accountId);
+
+		Task<bool> CopyOrdes(string targetAccountId, IEnumerable<structSTIOrderUpdate> orders);
 	}
 }

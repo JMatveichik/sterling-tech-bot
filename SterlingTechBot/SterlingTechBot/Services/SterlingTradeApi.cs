@@ -1,4 +1,6 @@
-﻿using System;
+﻿using SterlingLib;
+using SterlingTechBot.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,43 +11,65 @@ namespace SterlingTechBot.Services
 {
 	public class SterlingTradeApi : ISterlingTradeApi
 	{
-		public Task<bool> CopyTrades(string targetAccountId, string xmlToSend)
+		private readonly STIApp _STIApplicaltion;
+		private readonly STIEvents _STIEvents;
+
+		public SterlingTradeApi(STIApp STIApplicaltion, STIEvents STIEvents)
 		{
-			return Task.Run(() =>
-			{
-				// Здесь может быть работа с ActiveX или HTTP-запросами
-				return true;
-			});
+			_STIApplicaltion = STIApplicaltion
+									?? throw new ArgumentNullException(nameof(STIApplicaltion));
+
+			_STIApplicaltion.SetModeXML(true);
+
+			_STIEvents	= STIEvents
+									?? throw new ArgumentNullException(nameof(STIEvents));
+
+			//_STIEvents.OnSTIOrderUpdateXML += new _ISTIEventsEvents_OnSTIOrderUpdateXMLEventHandler(OnSTIOrderUpdateXML);
 		}
 
-		public Task<string> GetTrades(string accountId)
+		private void OnSTIOrderUpdateXML(ref string bstrOrder)
+		{
+		}
+
+		public Task<bool> CopyOrdes(string targetAccountId, IEnumerable<structSTIOrderUpdate> orders)
+		{
+			throw new NotImplementedException();
+		}
+
+		public Task<IEnumerable<structSTIOrderUpdate>> GetOrders(string accountId)
 		{
 			// Асинхронный вызов без блокировки UI
 			return Task.Run(() =>
 			{
-				// Пример XML-данных (в реальности - вызов API)
-				return @$"<?xml version='1.0' encoding='UTF-8'?>
-						 <ArrayOfTrade>
-                          <Trade>
-                            <Id>123</Id>
-                            <AccountId>{accountId}</AccountId>
-                            <Amount>100.50</Amount>
-                            <Timestamp>2023-12-01T10:00:00</Timestamp>
-                          </Trade>
-						<Trade>
-                            <Id>234</Id>
-                            <AccountId>{accountId}</AccountId>
-                            <Amount>1050.50</Amount>
-                            <Timestamp>2023-12-01T10:00:00</Timestamp>
-                          </Trade>
-						<Trade>
-                            <Id>568</Id>
-                            <AccountId>{accountId}</AccountId>
-                            <Amount>220.50</Amount>
-                            <Timestamp>2023-12-01T10:00:00</Timestamp>
-                          </Trade>
-                        </ArrayOfTrade>";
+				// 1. Инициализация объекта для работы с ордерами
+				STIOrderMaint orderMaint = new STIOrderMaint();
+
+				// 2. Создание фильтра
+				structSTIOrderFilter filter = new structSTIOrderFilter
+				{
+					bstrAccount = accountId,
+					bOpenOnly = 1,		// false = все ордера (включая исторические)
+					bstrSymbol = "",    // Пусто = все символы
+					bstrInstrument = "" // Пусто = все типы инструментов
+				};
+
+				// 3. Подготовка переменных для результатов
+				Array? orderArray = null;
+
+				// 4. Запрос ордеров
+				int result = orderMaint.GetOrderListEx(ref filter, ref orderArray);
+
+				// 5. Обработка результатов
+				if (result == 0)
+				{
+					var returnedOrders = (structSTIOrderUpdate[])orderArray;
+					return returnedOrders.AsEnumerable();
+				}
+
+				return Enumerable.Empty<structSTIOrderUpdate>();
 			});
 		}
+
+
 	}
 }

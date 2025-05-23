@@ -6,7 +6,7 @@ namespace SterlingTechBot.Services
 {
 	public interface ITradeXmlService
 	{
-		IEnumerable<Trade> ParseTradesFromXml(string xmlData);
-		string ConvertTradesToXml(IEnumerable<Trade> trades);
+		IEnumerable<Order> ParseTradesFromXml(string xmlData);
+		string ConvertTradesToXml(IEnumerable<Order> trades);
 	}
 }

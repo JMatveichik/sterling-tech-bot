@@ -11,6 +11,7 @@ using System.Reactive;
 using System.Reactive.Disposables;
 using System.Threading.Tasks;
 using System.Windows;
+using SterlingLib;
 
 namespace SterlingTechBot.ViewModels
 {
@@ -19,8 +20,10 @@ namespace SterlingTechBot.ViewModels
 		private readonly ITradeApiService	 _tradeService;
 		private readonly CompositeDisposable _disposables = new();
 
-		[Reactive]
-		public List<Trade> Trades { get; private set; } = new();
+		public ObservableCollection<Order> Orders { get; private set; } = new();
+
+
+		private List<structSTIOrderUpdate> _recievedOrders = new();
 
 		[Reactive]
 		public string Result { get; private set; } = string.Empty;
@@ -35,14 +38,14 @@ namespace SterlingTechBot.ViewModels
 		public bool IsLoading { get;  private set; }
 
 		public ReactiveCommand<Unit, Unit> LoadTradesCommand { get; private set; }
-		public ReactiveCommand<Unit, Unit> CopyTradesCommand { get; private set; }
+		public ReactiveCommand<Unit, Unit> CopyOrdersCommand { get; private set; }
 
 		public MainViewModel(ITradeApiService tradeService)
 		{
 			_tradeService = tradeService ?? throw new ArgumentNullException(nameof(tradeService));
 
 			LoadTradesCommand = ReactiveCommand.CreateFromTask(LoadTrades);
-			CopyTradesCommand = ReactiveCommand.CreateFromTask(CopyTrades);
+			CopyOrdersCommand = ReactiveCommand.CreateFromTask(CopyOrders);
 		}
 
 		private async Task LoadTrades()
@@ -50,12 +53,22 @@ namespace SterlingTechBot.ViewModels
 			IsLoading = true;
 			try
 			{
-				var trades = await _tradeService.GetTrades(SourceAccountId);
-				Trades = trades.ToList();
+				var orders = await _tradeService.GetOrders(SourceAccountId);
+
+				Orders.Clear();
+				foreach (var ord in orders)
+				{
+					Orders.Add (new Order(){
+						Id = ord.bstrClOrderId,
+						Quantity = ord.nQuantity,
+						Symbol = ord.bstrSymbol,
+						Timestamp = ord.bstrStartTime
+						});
+				}
 			}
 			catch (Exception ex)
 			{
-
+				Result = ex.Message;
 			}
 			finally
 			{
@@ -63,27 +76,26 @@ namespace SterlingTechBot.ViewModels
 			}
 		}
 
-		private async Task CopyTrades()
+		private async Task CopyOrders()
 		{
-			if (!Trades.Any())
+			if (!_recievedOrders.Any())
 				return;
 
 
 			IsLoading = true;
 			try
 			{
-				Result = await _tradeService.CopyTrades(Trades.ToList(), TargetAccountId);
+				bool succses = await _tradeService.CopyOrders(TargetAccountId, _recievedOrders);
+				Result = succses ? "Error" : "Succses";
 			}
 			catch (Exception ex)
 			{
-				return ;
+				Result = ex.Message;
 			}
 			finally {
 				IsLoading = false;
 			}
 		}
-
-
 		public void Dispose() => _disposables.Dispose();
 	}
 }

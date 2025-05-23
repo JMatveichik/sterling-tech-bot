@@ -1,4 +1,5 @@
-﻿using SterlingTechBot.Models;
+﻿using SterlingLib;
+using SterlingTechBot.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,13 +14,14 @@ namespace SterlingTechBot.Services
 	/// </summary>
 	public class MockTradeApiService : ITradeApiService
 	{
-		public Task<IEnumerable<Trade>> GetTrades(string accountId)
+		public Task<IEnumerable<structSTIOrderUpdate>> GetOrders(string accountId)
 		{
-			return Task.FromResult(Enumerable.Empty<Trade>());
+			return Task.FromResult(Enumerable.Empty<structSTIOrderUpdate>());
 		}
-		public Task<string> CopyTrades(IEnumerable<Trade> trades, string targetAccountId)
+
+		public Task<bool> CopyOrders(string targetAccountId, IEnumerable<structSTIOrderUpdate> trades)
 		{
-			return Task.FromResult("true");
+			return Task.FromResult(true);
 		}
 	}
 }

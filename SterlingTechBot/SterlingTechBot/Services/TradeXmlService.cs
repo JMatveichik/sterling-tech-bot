@@ -10,14 +10,14 @@ namespace SterlingTechBot.Services
 {
 	class TradeXmlService : ITradeXmlService
 	{
-		public string ConvertTradesToXml(IEnumerable<Trade> trades)
+		public string ConvertTradesToXml(IEnumerable<Order> trades)
 		{
 			if (trades == null || !trades.Any())
 			{
 				return string.Empty;
 			}
 
-			var serializer = new XmlSerializer(typeof(List<Trade>));
+			var serializer = new XmlSerializer(typeof(List<Order>));
 			var settings = new XmlWriterSettings
 			{
 				Indent = true,
@@ -32,28 +32,28 @@ namespace SterlingTechBot.Services
 			}
 		}
 
-		public IEnumerable<Trade> ParseTradesFromXml(string xmlData)
+		public IEnumerable<Order> ParseTradesFromXml(string xmlData)
 		{
 			if (string.IsNullOrWhiteSpace(xmlData))
 			{
-				return Enumerable.Empty<Trade>();
+				return Enumerable.Empty<Order>();
 			}
 
-			var serializer = new XmlSerializer(typeof(List<Trade>));
+			var serializer = new XmlSerializer(typeof(List<Order>));
 
 			using (var stringReader = new StringReader(xmlData))
 			using (var xmlReader = XmlReader.Create(stringReader))
 			{
 				try
 				{
-					var result = serializer.Deserialize(xmlReader) as List<Trade>;
-					return result ?? Enumerable.Empty<Trade>();
+					var result = serializer.Deserialize(xmlReader) as List<Order>;
+					return result ?? Enumerable.Empty<Order>();
 				}
 				catch (Exception ex)
 				{
 					// Логирование ошибки (например, через ILogger)
 					Console.WriteLine($"Ошибка парсинга XML: {ex.Message}");
-					return Enumerable.Empty<Trade>();
+					return Enumerable.Empty<Order>();
 				}
 			}
 		}

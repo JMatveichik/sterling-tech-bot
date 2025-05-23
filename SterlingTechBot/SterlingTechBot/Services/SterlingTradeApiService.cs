@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using SterlingLib;
 
 namespace SterlingTechBot.Services
 {
@@ -12,23 +13,22 @@ namespace SterlingTechBot.Services
 		private readonly ITradeXmlService _tradeXmlService;
 		private readonly ISterlingTradeApi _sterlingTradeApi;
 
+
+
 		public SterlingTradeApiService(ISterlingTradeApi sterlingTradeApi, ITradeXmlService tradeXmlService)
 		{
-			_tradeXmlService  = tradeXmlService ?? throw new ArgumentNullException(nameof(tradeXmlService));
+			_tradeXmlService = tradeXmlService ?? throw new ArgumentNullException(nameof(tradeXmlService));
 			_sterlingTradeApi = sterlingTradeApi ?? throw new ArgumentNullException(nameof(sterlingTradeApi));
 		}
 
-		public async Task<IEnumerable<Trade>> GetTrades(string accountId)
+		public async Task<IEnumerable<structSTIOrderUpdate>> GetOrders(string accountId)
 		{
-			var xmlData = await _sterlingTradeApi.GetTrades(accountId);
-			return _tradeXmlService.ParseTradesFromXml(xmlData);
+			return await _sterlingTradeApi.GetOrders(accountId);
 		}
 
-		public async Task<string> CopyTrades(IEnumerable<Trade> trades, string targetAccountId)
+		public async Task<bool> CopyOrders(string targetAccountId, IEnumerable<structSTIOrderUpdate> orders)
 		{
-			var xmlToSend = _tradeXmlService.ConvertTradesToXml(trades);
-			await _sterlingTradeApi.CopyTrades(targetAccountId, xmlToSend);
-			return xmlToSend;
+			return await _sterlingTradeApi.CopyOrdes(targetAccountId, orders);
 		}
 	}
 }
